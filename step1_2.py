@@ -12,21 +12,22 @@ fasta = open(sys.argv[1])
 
 def GC_content(fasta):
     seq_dict = {}
-    for line in fasta:
-       line = line.rstrip()
-       print(line)
 
+    for line in fasta:
+       line = line.rstrip().upper()
+      # line = line.upper()
        if line.startswith(">"):
            header = line
+           (f"This is your sequence header: {header}")
            #save the header as a key:
            if header not in seq_dict:
                ##can create the key codes inside here:
                ##*
               # header = line
-               print(header)
+              # print(header)
                ##"all" versus "non" indicates whether or non the "n" nucelotides were included in the length calculation.
                seq_dict[header] = {'length_all': 0, 'length_non': 0,'GC_count' : 0, 'GC_content_all': 0.0, 'GC_content_non': 0.0,} 
-               print(seq_dict)
+             #  print(seq_dict)
                ##at this point we should have a dictionary that looks like this:
                ##{'MainKey1': {'length'='', 'GC_count' = '', 'GC_content' =''}, 'MainKey2'... }
        else: 
@@ -36,8 +37,9 @@ def GC_content(fasta):
                ##which will have three entries (for now empty):
                #seq_dict[header][line] = {}
                ##calculate the length of the line with and without Ns:
-               line.upper()
-               ##this shoudl include all bases: ATCGN
+               #line.upper()
+               print(f"This is your sequence that should be all CAPITALS: {line}")
+               ##this should include all bases: ATCGN
                seqlength = len(line)
                print(f"This is your entire sequence length (ATCGN): {seqlength}")
                seq_dict[header]['length_all'] += seqlength
@@ -86,9 +88,10 @@ def GC_content(fasta):
                #GC_content = count/seqlength
                if seq_dict[header]['length_all'] > 0:
                 ##create the GC content for all bases in the file(ATCGN):
-                seq_dict[header]['GC_content_all'] = seq_dict[header]['GC_count'] / seq_dict[header]['length_all']
+                    seq_dict[header]['GC_content_all'] = seq_dict[header]['GC_count'] / seq_dict[header]['length_all']
+               if seq_dict[header]['length_non'] > 0:
                 ##create the GC content in only ACTGs (no 'n's):
-                seq_dict[header]['GC_content_non'] = seq_dict[header]['GC_count'] / seq_dict[header]['length_non']
+                    seq_dict[header]['GC_content_non'] = seq_dict[header]['GC_count'] / seq_dict[header]['length_non']
               # print(GC_content)
                print(seq_dict[header]['GC_content_all'])
                print(seq_dict[header]['GC_content_non'])
