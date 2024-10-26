@@ -18,15 +18,18 @@ def GC_content(fasta):
       # line = line.upper()
        if line.startswith(">"):
            header = line
-           (f"This is your sequence header: {header}")
+           print(f"This is your sequence header: {header}")
+           trunc_head = re.search(r">([1-9]|1[0-9]|2[0-3]|[XY])", header)
+           trunc_head = trunc_head.group(1)
+           print(f"This is your truncated header: {trunc_head}")
            #save the header as a key:
-           if header not in seq_dict:
+           if trunc_head not in seq_dict:
                ##can create the key codes inside here:
                ##*
               # header = line
               # print(header)
                ##"all" versus "non" indicates whether or non the "n" nucelotides were included in the length calculation.
-               seq_dict[header] = {'length_all': 0, 'length_non': 0,'GC_count' : 0, 'GC_content_all': 0.0, 'GC_content_non': 0.0,} 
+               seq_dict[trunc_head] = {'length_all': 0, 'length_non': 0,'GC_count' : 0, 'GC_content_all': 0.0, 'GC_content_non': 0.0,} 
              #  print(seq_dict)
                ##at this point we should have a dictionary that looks like this:
                ##{'MainKey1': {'length'='', 'GC_count' = '', 'GC_content' =''}, 'MainKey2'... }
@@ -42,7 +45,7 @@ def GC_content(fasta):
                ##this should include all bases: ATCGN
                seqlength = len(line)
                print(f"This is your entire sequence length (ATCGN): {seqlength}")
-               seq_dict[header]['length_all'] += seqlength
+               seq_dict[trunc_head]['length_all'] += seqlength
                
                
                ##count only ATCG bases (no Ns) for length_non():
@@ -59,7 +62,7 @@ def GC_content(fasta):
                     else:
                          countbases +=0
                print(f"This is your shortened sequence length (ATCG): {countbases}")
-               seq_dict[header]['length_non'] += countbases
+               seq_dict[trunc_head]['length_non'] += countbases
 
 
 
@@ -80,21 +83,21 @@ def GC_content(fasta):
                     else:
                          count +=0
                print(count)
-               seq_dict[header]['GC_count'] += count
+               seq_dict[trunc_head]['GC_count'] += count
 
 
 
                #calculate the GC content:
                #GC_content = count/seqlength
-               if seq_dict[header]['length_all'] > 0:
+               if seq_dict[trunc_head]['length_all'] > 0:
                 ##create the GC content for all bases in the file(ATCGN):
-                    seq_dict[header]['GC_content_all'] = seq_dict[header]['GC_count'] / seq_dict[header]['length_all']
-               if seq_dict[header]['length_non'] > 0:
+                    seq_dict[trunc_head]['GC_content_all'] = seq_dict[trunc_head]['GC_count'] / seq_dict[trunc_head]['length_all']
+               if seq_dict[trunc_head]['length_non'] > 0:
                 ##create the GC content in only ACTGs (no 'n's):
-                    seq_dict[header]['GC_content_non'] = seq_dict[header]['GC_count'] / seq_dict[header]['length_non']
+                    seq_dict[trunc_head]['GC_content_non'] = seq_dict[trunc_head]['GC_count'] / seq_dict[trunc_head]['length_non']
               # print(GC_content)
-               print(seq_dict[header]['GC_content_all'])
-               print(seq_dict[header]['GC_content_non'])
+               print(seq_dict[trunc_head]['GC_content_all'])
+               print(seq_dict[trunc_head]['GC_content_non'])
 
     return(seq_dict)
 
