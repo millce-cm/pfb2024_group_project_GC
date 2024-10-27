@@ -147,32 +147,37 @@ if file2:
 
 ############## This should use the output file from Tim and run it 
 
-    chromosomes = {} #This is our outer dictionary, the structure should be, chromosomes as keys, elements should be an inner dictionary
-    chromosomes_1 = {} #This is for merging the stats and amino acid analyses later - this is the one for amino acids
-    chromosomes_2 = {} #This is for merging the stats and amino acid analyses later - this is the one for stats
+    chromosomes = {} 
+    chromosomes_1 = {} 
+    chromosomes_2 = {}
+    this_seq = ''
 
-
-with open (file2, 'r') as fh:  #This is opening my Test File, we need to adapt this later to read in the actual file
-    for line in fh: #Go through the line file by file
-        line = line.rstrip().upper()  #Get rid of \n at the end of the line
-        if line.startswith('>'): #These should be used as our keys
-            line = line.strip('>')
-            chromosomes[line] = {} #This allows us to add the line as key to dictionary, again if we end up with a differnt header we need to adapt this
-            key = line
-            string = ''
-            counter = 1
-        else:
-           string += line
-        amino_acid_count = (amino_acid_counting(amino_acid_translation(string)))
-        stats = (basic_stats(string))
+    with open (file2, 'r') as fh:  #This is opening my Test File, we need to adapt this later to read in the actual file
+        for line in fh: #Go through the line file by file
+            line = line.rstrip()  #Get rid of \n at the end of the line
+            if line.startswith('>'): #These should be used as our keys
+                if this_seq:
+                    amino_acid_count = (amino_acid_counting(amino_acid_translation(this_seq)))
+                    stats = (basic_stats(this_seq))
+                    chromosomes_1[key] = amino_acid_count
+                    chromosomes_2[key] = stats
+                    this_seq = ''
+                if not 'scaffold' in line and not line.startswith('>MT'):
+                    key = line.split(' ')[0].lstrip('>')
+                    print(f'working on {key}')
+                else:
+                    key = ''
+                
+            elif key:  # we're in sequence
+                this_seq += line.upper()
+    if this_seq:
+        amino_acid_count = (amino_acid_counting(amino_acid_translation(this_seq)))
+        stats = (basic_stats(this_seq))
         chromosomes_1[key] = amino_acid_count
         chromosomes_2[key] = stats
-    #print(chromosomes_1)
-    #print(chromosomes_2)
 
 
-    # Combine the two dictionaries into one which we can save and use for further analyses
     chromosomes = {k: {**v, **chromosomes_1[k]} for k, v in chromosomes_2.items()}
     df = pd.DataFrame.from_dict(chromosomes , orient='index')
     print(df)
-    df.to_csv('output_coding_dns.csv', index=False) 
+    df.to_csv('output_coding_dns_test_Tim_cod.csv', index=False) 
