@@ -109,9 +109,11 @@ if file1:
     
     chromosomes_full = {} 
     string = ''
-
+    i=0  # line counter
     with open (file1, 'r') as fh:  #This is opening my Test File, we need to adapt this later to read in the actual file
         for line in fh: #Go through the line file by file
+            i+=1 
+            print(f'line {i}')
             line = line.rstrip().upper()  #Get rid of \n at the end of the line
             if line.startswith('>'): #These should be used as our keys
                 if re.search(r'^>([1-9]|1[0-9]|2[0-3]|[XY])', line):
