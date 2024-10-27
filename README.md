@@ -8,6 +8,9 @@ Scripts and other files for our python coding project
 5. Sync repo (you can't pull unless you are using the most recent version!)
 6. Pull request
 7. After accepted, you can pull
+
+## To update your local repo to match the main repo online:
+1. type "git pull" in the command line
 ## Members
 1. Caitlin Millett
 2. Rada Malko
