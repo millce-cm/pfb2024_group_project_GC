@@ -1,23 +1,21 @@
 #!/usr/bin/env python
 
-########################################### Set up our main script ########################################### 
+########################################### Set up of the script ########################################### 
 import os, sys, re, argparse
 import pandas as pd
 import pickle
 
-parser = argparse.ArgumentParser(description= 'This is a script which has two optional arguments: file_1 and file_2. If you include at least one file, you will get basic statistics for that sequence. If you include both, you will get statistics for the whole genome and coding DNS')
+parser = argparse.ArgumentParser(description= 'This is a script which has two optional arguments: file_1 and file_2. If you include at least one file, you will get gene length, GC content and amino acid content for that sequence. If you include both, you will get gene length and GC content for the whole genome and gene length, GC content and amino acid content for the coding DNS')
 parser.add_argument('-f1', '--file_1', help ='optional: Path to FASTA file for the whole genome')
 parser.add_argument('-f2', '--file_2', help ='optional: Path to FASTA file for the coding sequence')
-parser.add_argument('-f3', '--file_3', help ='optional: Path to FASTA file that saves the coding sequence per chromosome. Note if you provide a coding sequence you should also provide this.')
 args = parser.parse_args()
 file1 = args.file_1
 file2 = args.file_2
-file3 = args.file_3
 
 ########################################### These are the functions used in the script ########################################### 
 
 # Function that a) splits a dna string into triplets and b) translates the triplets into amino acids
-def amino_acid_translation (dna):  #This function reads in a dna string and translates it into a list of aminoacids
+def amino_acid_translation (dna):  
 
     dna_upper = dna.upper() # Converts everything into upper letters
     my_list = re.findall(r'(\S{3})', dna_upper) # Splits the string into a list, each element being a codon 
@@ -126,9 +124,9 @@ if file1:
 
     print('You provided a whole genome. The output files will include genome length, GC count, and GC content per chromosome.')
 
-    def run_whole(): #Note, this whole section did not run before putting it in a function. Noone udnerstand why it runs now, but it does. 
+    def run_whole(): #Note, this whole section did not run before putting it in a function. Noone understand why it runs now, but it does. 
         
-        chromosomes_full = {} #This is our outer dictionary
+        chromosomes_full = {} #This is the outer dictionary
         
         this_seq = ''
         i=0  # line counter
@@ -140,12 +138,12 @@ if file1:
 
                 if line.startswith('>'): #All lines that start with >
                     print('in header line')
-                    if this_seq: #We are moving this up to ensure that our operations are done once on the whole concatenated string
+                    if this_seq: #We moved this up to ensure that our operations are done once on the whole concatenated string
                         print('we have a seq for statistics') 
                         stats = (basic_stats(this_seq)) #This calls our stats function from above
                         chromosomes_full[key] = stats #The output from our stats function is a dictionary
                         print('we have created our dictionary')
-                        this_seq = '' #Setting sequence back to emoty for our next key
+                        this_seq = '' #Setting sequence back to empty for our next key
                     if not 'scaffold' in line and not line.startswith('>MT'): #We are in a header, that does not include scaffold or MT
                         key = line.split(' ')[0].lstrip('>') #We are creating out key from the header line, by extracting everything before the first  empty character and then stripping the >
                         print(f'working on {key}')
@@ -160,12 +158,12 @@ if file1:
             stats = (basic_stats(this_seq))
             chromosomes_full[key] = stats
         
-        print(chromosomes_full) #We kept this print in here to make sure it ran
+        print(chromosomes_full) #Used for checking
 
-        pickle.dump(chromosomes_full, open('output_whole_genome_2.p', 'wb')) #Saves our dictionary to later inport it
+        pickle.dump(chromosomes_full, open('output_whole_genome_blue_whale.p', 'wb')) #Saves our dictionary to later inport it
 
-        df_full= pd.DataFrame.from_dict(chromosomes_full , orient='index') #Converst our dictionar to a dataframe and saves the dataframe
-        df_full.to_csv('output_whole_genome_2.csv', index=True) 
+        #df_full= pd.DataFrame.from_dict(chromosomes_full , orient='index') #Converst our dictionary to a dataframe and saves the dataframe
+        #df_full.to_csv('output_whole_genome_2.csv', index=True) 
 
     if __name__ == "__main__":
         run_whole()
@@ -176,12 +174,13 @@ if file2:
     
     print('You provided a coding genome. The script will create a new file that combines the coding sequence of each gene. The output files will include genome length, GC count, and GC content as well as the count of all amino acids per chromosome.')
 
-############## Tim's Code for reformatting the input file
+############## Cleaning the code
+    print('Please wait - the code is being cleaned up and a file for your further analyses is created')
 
     chrom_dict = {}
     gene_id_dict = {}
 
-    with open(file2, 'r') as fasta_in_fh, open(file3, 'w') as fasta_out_fh:
+    with open(file2, 'r') as fasta_in_fh, open('coding_sequence_per_chromosome_blue_whale.fa', 'w') as fasta_out_fh:
         current_gene_id = None  # Store the current gene ID
         header = ''
         
@@ -214,16 +213,16 @@ if file2:
         for key in chrom_dict:
             fasta_out_fh.write(f">{key}\n{chrom_dict[key]}")
 
-############## This should use the output file from Tim and run it 
+############## This runs with the output file from above
 
     def run_sequence():
     
-        chromosomes = {} #This is our finl outer dictionary. 
+        chromosomes = {} #This is our final outer dictionary. 
         chromosomes_1 = {} 
         chromosomes_2 = {}
         this_seq = ''
 
-        with open (file3, 'r') as fh:  #This should be adapted once we incorporate Tim's code into this script
+        with open ('coding_sequence_per_chromosome_blue_whale.fa', 'r') as fh:  #This should be adapted once we incorporate Tim's code into this script
             for line in fh: #Go through the line file by file
                 line = line.rstrip()  #Get rid of \n at the end of the line
                 if line.startswith('>'): #Find lines that start with >
@@ -239,7 +238,7 @@ if file2:
                     else:
                         key = ''
                     
-                elif key:  # We are in our sequence and concatenate all lines to the sequence
+                elif key:  #We are in our sequence and concatenate all lines to the sequence
                     this_seq += line.upper()
         if this_seq: #Again, this is needed for the last key
             amino_acid_count = (amino_acid_counting(amino_acid_translation(this_seq)))
@@ -252,9 +251,9 @@ if file2:
         
         print(chromosomes)
         
-        pickle.dump(chromosomes, open('output_coding_genome_2.p', 'wb'))
-        df = pd.DataFrame.from_dict(chromosomes , orient='index')
-        df.to_csv('output_coding_genome_2.csv', index=True) 
+        pickle.dump(chromosomes, open('output_coding_genome_2_blue_whale.p', 'wb'))
+        #df = pd.DataFrame.from_dict(chromosomes , orient='index')
+        #df.to_csv('output_coding_genome_2.csv', index=True) 
     
     if __name__ == "__main__":
         run_sequence()
