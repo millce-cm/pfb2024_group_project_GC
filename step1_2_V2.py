@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import re
 import sys
+import pickle
 
 ## Obejctive: General descriptives
 # Create a dictionary within a dictionary:
@@ -102,21 +103,9 @@ def GC_content(fasta):
 
               
     return(seq_dict)
-result = GC_content(fasta)
-print(result)
-
-#               
-#             
-#                  
-#                   
-#                 
-#                     
-#                  
-#                       
-#                     
-#           
-#               
-#              
+whole_gen_dict = GC_content(fasta)
+print(whole_gen_dict)
+pickle.dump(whole_gen_dict, open("save.p", "wb"))     
 
                        
                 
