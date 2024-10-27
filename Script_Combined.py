@@ -3,6 +3,7 @@
 ########################################### Set up our main script ########################################### 
 import os, sys, re, argparse
 import pandas as pd
+import pickle
 
 parser = argparse.ArgumentParser(description= 'This is a script which has two optional arguments: file_1 and file_2. If you include at least one file, you will get basic statistics for that sequence. If you include both, you will get statistics for the whole genome and coding DNS')
 parser.add_argument('-f1', '--file_1', help ='optional: Path to FASTA file for the whole genome')
@@ -91,7 +92,7 @@ def basic_stats(dna):
     stats['length_non'] = (dna.count('G') + dna.count('C') + dna.count('A') + dna.count('T'))
     stats['GC_count'] = dna.count('G') + dna.count('C')
     
-    if stats['length_all'] > 0:
+    if stats['length_all'] > 0: #Note: this is probably unnecessary because length is always >) if we have an input, kept it in here so it does not break if we have an empty one
         stats['GC_content_all'] = stats['GC_count'] / stats['length_all']
     else:
         stats['GC_content_all'] = 0
@@ -105,79 +106,99 @@ def basic_stats(dna):
 
 
 ########################################### This should be executed if the user provides the whole sequence ########################################### 
+
 if file1:
-    
-    chromosomes_full = {}
-    
-    this_seq = ''
-    i=0  # line counter
-    with open (file1, 'r') as fh:  #This is opening my Test File, we need to adapt this later to read in the actual file
-        for line in fh: #Go through the line file by file
-            
-            line = line.rstrip()  #Get rid of \n at the end of the line
-            
-            if line.startswith('>'): #These should be used as our keys
-                if this_seq:
-                    stats = (basic_stats(this_seq))
-                    chromosomes_full[key] = stats
-                    this_seq = ''
-                if not 'scaffold' in line and not line.startswith('>MT'): # we're in a chromosome header line, but not MT (mitochondrion)
-                    key = line.split(' ')[0].lstrip('>')
-                    print(f'working on {key}')
-                else:
-                    key = ''
+
+    def run_whole(): #Note, this whole section did not run before putting it in a function. Noone udnerstand why it runs now, but it does. 
+        
+        chromosomes_full = {} #This is our outer dictionary
+        
+        this_seq = ''
+        i=0  # line counter
+        with open (file1, 'r') as fh:  
+
+            for i, line in enumerate(fh): #Go through the file line by line, not printing this anymore because it takes lot of time
+                #print(f'{i}:{line}')
+                line = line.rstrip()  #Get rid of \n at the end of the line
+
+                if line.startswith('>'): #All lines that start with >
+                    print('in header line')
+                    if this_seq: #We are moving this up to ensure that our operations are done once on the whole concatenated string
+                        print('we have a seq for statistics') 
+                        stats = (basic_stats(this_seq)) #This calls our stats function from above
+                        chromosomes_full[key] = stats #The output from our stats function is a dictionary
+                        print('we have created our dictionary')
+                        this_seq = '' #Setting sequence back to emoty for our next key
+                    if not 'scaffold' in line and not line.startswith('>MT'): #We are in a header, that does not include scaffold or MT
+                        key = line.split(' ')[0].lstrip('>') #We are creating out key from the header line, by extracting everything before the first  empty character and then stripping the >
+                        print(f'working on {key}')
+                    else:
+                        key = ''#This is if we are in a header line, that is either a scaffold or starts with MT
+                    
+
+                elif key:  # We are in the sequence, adding all lines into our this_seq, which we will use for our statistics
+                    this_seq += line.upper()
                 
+        if this_seq: #This is needed to also include the stats for the last key - sequence pair
+            stats = (basic_stats(this_seq))
+            chromosomes_full[key] = stats
+        
+        print(chromosomes_full) #We kept this print in here to make sure it ran
 
-            elif key:  # we're in sequence
-                this_seq += line.upper()
-    if this_seq:
-        stats = (basic_stats(this_seq))
-        chromosomes_full[key] = stats
+        pickle.dump(chromosomes_full, open('output_whole_genome.p', 'wb')) #Saves our dictionary to later inport it
 
-    
+        df_full= pd.DataFrame.from_dict(chromosomes_full , orient='index') #Converst our dictionar to a dataframe and saves the dataframe
+        df_full.to_csv('output_whole_genome.csv', index=True) 
 
-    df_full= pd.DataFrame.from_dict(chromosomes_full , orient='index')
-    print(df_full)
-    df_full.to_csv('output_whole.csv', index=False) 
+    if __name__ == "__main__":
+        run_whole()
 
 
 ########################################### This should be executed if the user provides the coding DNS ########################################### 
 if file2:
+
 ############## Tim's Code for reformatting the input file
 
 ############## This should use the output file from Tim and run it 
 
-    chromosomes = {} 
+#Because this runs, we kept it outside a function. However, we could move this into a function as well. 
+
+    chromosomes = {} #This is our finl outer dictionary. 
     chromosomes_1 = {} 
     chromosomes_2 = {}
     this_seq = ''
 
-    with open (file2, 'r') as fh:  #This is opening my Test File, we need to adapt this later to read in the actual file
+    with open (file2, 'r') as fh:  #This should be adapted once we incorporate Tim's code into this script
         for line in fh: #Go through the line file by file
             line = line.rstrip()  #Get rid of \n at the end of the line
-            if line.startswith('>'): #These should be used as our keys
-                if this_seq:
-                    amino_acid_count = (amino_acid_counting(amino_acid_translation(this_seq)))
-                    stats = (basic_stats(this_seq))
-                    chromosomes_1[key] = amino_acid_count
-                    chromosomes_2[key] = stats
-                    this_seq = ''
-                if not 'scaffold' in line and not line.startswith('>MT'):
+            if line.startswith('>'): #Find lines that start with >
+                if this_seq: #See above - we are doing this to efficiently calculate our stats once on the whole sequence for one chromosome
+                    amino_acid_count = (amino_acid_counting(amino_acid_translation(this_seq))) #This is calling the amino acid translation and counting functions
+                    stats = (basic_stats(this_seq)) #This is calling the stats function from above. 
+                    chromosomes_1[key] = amino_acid_count #This is creating an outer dictionary that only has the results from the aminoacid count as inner dictionary 
+                    chromosomes_2[key] = stats #This is creating an outer dictionary that only has the results from the basic count as inner dictionary 
+                    this_seq = '' #This is resetting our sequence for the next key
+                if not 'scaffold' in line and not line.startswith('>MT'): #This is creating our keys, should not be needed, but double cheks Tim's script
                     key = line.split(' ')[0].lstrip('>')
                     print(f'working on {key}')
                 else:
                     key = ''
                 
-            elif key:  # we're in sequence
+            elif key:  # We are in our sequence and concatenate all lines to the sequence
                 this_seq += line.upper()
-    if this_seq:
+    if this_seq: #Again, this is needed for the last key
         amino_acid_count = (amino_acid_counting(amino_acid_translation(this_seq)))
         stats = (basic_stats(this_seq))
         chromosomes_1[key] = amino_acid_count
         chromosomes_2[key] = stats
 
-
+    #Here we combine our two helper dictionaries (which have the same keys) into our final dictionary
     chromosomes = {k: {**v, **chromosomes_1[k]} for k, v in chromosomes_2.items()}
+    
+    print(chromosomes)
+    
+    pickle.dump(chromosomes, open('output_coding_genome.p', 'wb'))
     df = pd.DataFrame.from_dict(chromosomes , orient='index')
-    print(df)
-    df.to_csv('output_coding_dns_test_Tim_cod.csv', index=False) 
+    df.to_csv('output_coding_genome.csv', index=True) 
+
+
