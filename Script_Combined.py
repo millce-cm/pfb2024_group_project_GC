@@ -107,26 +107,34 @@ def basic_stats(dna):
 ########################################### This should be executed if the user provides the whole sequence ########################################### 
 if file1:
     
-    chromosomes_full = {} 
-    string = ''
+    chromosomes_full = {}
+    
+    this_seq = ''
     i=0  # line counter
     with open (file1, 'r') as fh:  #This is opening my Test File, we need to adapt this later to read in the actual file
         for line in fh: #Go through the line file by file
-            i+=1 
-            print(f'line {i}')
-            line = line.rstrip().upper()  #Get rid of \n at the end of the line
+            
+            line = line.rstrip()  #Get rid of \n at the end of the line
+            
             if line.startswith('>'): #These should be used as our keys
-                if re.search(r'^>([1-9]|1[0-9]|2[0-3]|[XY])', line):
-                    match_1 = re.search(r'^>([1-9]|1[0-9]|2[0-3]|[XY])', line)
-                    key = match_1.group(1)
-                    chromosomes_full[key] = {} 
-                    string = ''
+                if this_seq:
+                    stats = (basic_stats(this_seq))
+                    chromosomes_full[key] = stats
+                    this_seq = ''
+                if not 'scaffold' in line and not line.startswith('>MT'): # we're in a chromosome header line, but not MT (mitochondrion)
+                    key = line.split(' ')[0].lstrip('>')
+                    print(f'working on {key}')
                 else:
-                    key = 'scaffold'
-            elif key != 'scaffold':
-                string += line
-        stats = (basic_stats(string))
+                    key = ''
+                
+
+            elif key:  # we're in sequence
+                this_seq += line.upper()
+    if this_seq:
+        stats = (basic_stats(this_seq))
         chromosomes_full[key] = stats
+
+    
 
     df_full= pd.DataFrame.from_dict(chromosomes_full , orient='index')
     print(df_full)
