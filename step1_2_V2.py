@@ -40,10 +40,7 @@ def GC_content(fasta):
                         countbases += 1
                     else:
                          countbases +=0
-#                 print(f"This is your shortened sequence length (ATCG): {countbases}")
                  seq_dict[header]['length_non'] += countbases
-           
-               ##calcualte the GC count:
                  count = 0
                  for nt in line:
                     if nt == 'G':
@@ -56,7 +53,6 @@ def GC_content(fasta):
                         count += 0
                     else:
                          count +=0
-    #             print(count)
                  seq_dict[header]['GC_count'] += count
                 
                 
@@ -68,9 +64,7 @@ def GC_content(fasta):
                  if seq_dict[header]['length_non'] > 0:
                 ##create the GC content in only ACTGs (no 'n's):
                     seq_dict[header]['GC_content_non'] = seq_dict[header]['GC_count'] / seq_dict[header]['length_non']
-                #print(GC_content)
-#                 print(seq_dict[header]['GC_content_all'])
-#                 print(seq_dict[header]['GC_content_non'])
+
             
             else:
              header = 'scaffold'
