@@ -145,6 +145,7 @@ if file1:
                         print('we have created our dictionary')
                         this_seq = '' #Setting sequence back to empty for our next key
                     if not 'scaffold' in line and not line.startswith('>MT'): #We are in a header, that does not include scaffold or MT
+                    #if not 'scaffold' in line and not line.startswith('>MT') and not line.startswith('>VNFC'): #We used this for the whale
                         key = line.split(' ')[0].lstrip('>') #We are creating out key from the header line, by extracting everything before the first  empty character and then stripping the >
                         print(f'working on {key}')
                     else:
@@ -160,10 +161,11 @@ if file1:
         
         print(chromosomes_full) #Used for checking
 
-        pickle.dump(chromosomes_full, open('output_whole_genome_blue_whale.p', 'wb')) #Saves our dictionary to later inport it
+        #Please specify the organism if you change it
+        pickle.dump(chromosomes_full, open('output_whole_genome.p', 'wb')) #Saves our dictionary to later inport it
 
-        #df_full= pd.DataFrame.from_dict(chromosomes_full , orient='index') #Converst our dictionary to a dataframe and saves the dataframe
-        #df_full.to_csv('output_whole_genome_2.csv', index=True) 
+        df_full= pd.DataFrame.from_dict(chromosomes_full , orient='index') #Converst our dictionary to a dataframe and saves the dataframe
+        df_full.to_csv('output_whole_genome.csv', index=True) 
 
     if __name__ == "__main__":
         run_whole()
@@ -180,7 +182,7 @@ if file2:
     chrom_dict = {}
     gene_id_dict = {}
 
-    with open(file2, 'r') as fasta_in_fh, open('coding_sequence_per_chromosome_blue_whale.fa', 'w') as fasta_out_fh:
+    with open(file2, 'r') as fasta_in_fh, open('coding_sequence_per_chromosome.fa', 'w') as fasta_out_fh:
         current_gene_id = None  # Store the current gene ID
         header = ''
         
@@ -189,9 +191,11 @@ if file2:
                 # Check for "protein_coding" in the header line
                 if 'protein_coding' in line and 'scaffold' not in line:
                     # Extract chromosome and gene ID from the header
-                    chrom_match = re.search(r'^>.*:([\dXY]\d?):.*gene:(ENSG\S*)\s', line)
+                    chrom_match = re.search(r'^>.*:([\dXY]\d?):.*gene:(ENSG\S*)\s', line) #Human
+                    #chrom_match = re.search(r'^>.*:([\dXY]\d?):.*gene:(ENS\S*)\s', line) #Used for mouse and whale
                     if chrom_match:
                         chrom_id = chrom_match.group(1)
+                        #print( "YES")
                         current_gene_id = chrom_match.group(2)
 
                         # Initialize if this gene ID hasn't been seen before
@@ -222,7 +226,7 @@ if file2:
         chromosomes_2 = {}
         this_seq = ''
 
-        with open ('coding_sequence_per_chromosome_blue_whale.fa', 'r') as fh:  #This should be adapted once we incorporate Tim's code into this script
+        with open ('coding_sequence_per_chromosome.fa', 'r') as fh:  #This should be adapted once we incorporate Tim's code into this script
             for line in fh: #Go through the line file by file
                 line = line.rstrip()  #Get rid of \n at the end of the line
                 if line.startswith('>'): #Find lines that start with >
@@ -232,7 +236,7 @@ if file2:
                         chromosomes_1[key] = amino_acid_count #This is creating an outer dictionary that only has the results from the aminoacid count as inner dictionary 
                         chromosomes_2[key] = stats #This is creating an outer dictionary that only has the results from the basic count as inner dictionary 
                         this_seq = '' #This is resetting our sequence for the next key
-                    if not 'scaffold' in line and not line.startswith('>MT'): #This is creating our keys, should not be needed, but double cheks Tim's script
+                    if not 'scaffold' in line  and not line.startswith('>MT'): #This was the human line
                         key = line.split(' ')[0].lstrip('>')
                         print(f'working on {key}')
                     else:
@@ -251,9 +255,10 @@ if file2:
         
         print(chromosomes)
         
-        pickle.dump(chromosomes, open('output_coding_genome_2_blue_whale.p', 'wb'))
-        #df = pd.DataFrame.from_dict(chromosomes , orient='index')
-        #df.to_csv('output_coding_genome_2.csv', index=True) 
+        #Please change the output to match your organism
+        pickle.dump(chromosomes, open('output_coding_genome.p', 'wb'))
+        df = pd.DataFrame.from_dict(chromosomes , orient='index')
+        df.to_csv('output_coding_genome.csv', index=True) 
     
     if __name__ == "__main__":
         run_sequence()
