@@ -1,0 +1,35 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2818
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\froman\fcharset0 Times-Bold;\f1\froman\fcharset0 Times-Roman;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{decimal\}}{\leveltext\leveltemplateid1\'01\'00;}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid1}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\b\fs24 \cf0 Title:
+\f1\b0  \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 GC and Amino Acid Content in the Whole Genome.\
+\kerning1\expnd0\expndtw0 \outl0\strokewidth0 \
+
+\f0\b Short summary:
+\f1\b0 \
+\pard\pardeftab720\sa240\partightenfactor0
+\cf0 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 The main goals of the present project were to:\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\sa240\partightenfactor0
+\ls1\ilvl0\cf0 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	1	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Write a script that takes a whole genome and/or the coding part of a genome as input(s) and outputs either DNA length, GC count, and GC content (whole genome) or DNA length, GC count, GC content, amino acid counts, and amino acid contents (coding genome). The outputs were formatted as a double dictionary, with the chromosome number as the key for the outer dictionary and the name of the operation (e.g., DNA length, GC count) as the key for the inner dictionary. The actual numbers were the elements of the inner dictionary. We ensured that the script could be run for different species with similar genomes and executed it for the human, blue whale, and mouse genomes for further analyses.\
+\ls1\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	2	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Present the numbers in a graphical way using Pandas, Matplotlib, and Jupyter Notebooks. The inputs were the dictionaries created in step 1. The outputs included: a) a bar graph showing GC content averaged across the whole genome for the whole and coding human genome, b) a bar graph showing GC content per chromosome for the whole and coding human genome, c) scatter plots showing the association between GC content (whole and coding human genome) and the content of each amino acid (coding human genome), and d) a bar graph comparing the GC content averaged across the whole genome for the whole and coding genomes between human, blue whale, and mouse.\
+\pard\pardeftab720\sa240\partightenfactor0
+\cf0 Please note that we downloaded the genome data from Ensembl. A challenge that arose was that the whole genome was organized by chromosome, while the coding genome was organized by gene. Therefore, our additional goal 3) was to approximate the coding sequences per chromosome, test this approximation, and display it visually.\
+
+\f0\b TA:  
+\f1\b0 Maria Blanco Salazar
+\f0\b \
+Participants:
+\f1\b0  Caitlin Millett, Johanna Seitz-Holland, Rada Malko, Timothy Schwanitz\
+
+\f0\b GitHub Repo
+\f1\b0 : {\field{\*\fldinst{HYPERLINK "https://github.com/millce-cm/pfb2024_group_project_GC"}}{\fldrslt https://github.com/millce-cm/pfb2024_group_project_GC}}}
