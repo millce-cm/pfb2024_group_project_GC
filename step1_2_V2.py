@@ -74,7 +74,7 @@ def GC_content(fasta):
     return(seq_dict)
 whole_gen_dict = GC_content(fasta)
 print(whole_gen_dict)
-pickle.dump(whole_gen_dict, open("save.p", "wb"))     
+pickle.dump(whole_gen_dict, open("saveB.p", "wb"))     
 
                        
                 
