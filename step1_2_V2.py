@@ -4,11 +4,6 @@ import sys
 import pickle
 
 ## Obejctive: General descriptives
-# Create a dictionary within a dictionary:
-# Sequence/chromosome name as the Main Key:
-    #For each Main Key, create a dictionary consisting of:
-    #   {'MainKey1': {'length'=123, 'GC_count' = 123, 'GC_content' =}, 'MainKey2'... }
-
 fasta = open(sys.argv[1])
 
 def GC_content(fasta):
@@ -18,39 +13,19 @@ def GC_content(fasta):
        line = line.rstrip().upper()
        if line.startswith(">"):        
             print(f"This is your sequence header: {line}")
-        #   trunc_head = re.search(r">([1-9]|1[0-9]|2[0-3]|[XY])", line)
-           # trunc_head = re.search(r"^>.*:([\dXY]\d?):.*", line)
-            ### up to this point we've search through a line starting with ">"
-            ### and extracted the regex defined above. 
-            ### if there the regex expression was identified, then continue with below:
             if re.search(r"^>([\dXY]\d?)\s.*", line):
                 trunc_head = re.search(r"^>([\dXY]\d?)\s.*", line)
-                ##Added here at 1040AM:
                 header = trunc_head.group(1)
                 print(f"This is your current header that should in the the dictionary: {header}")
                 if header not in seq_dict: 
-                   ###up to now, we have extracted the value of the regex (eg., '1', 'X'...)
-                   ### if that value is not already in the dictonary, then we will do something
-                   # starting with print...
-#                   print(f"This is your truncated header: {(trunc_head.group(1))}")
                    seq_dict[header] = {'length_all': 0, 'length_non': 0,'GC_count' : 0, 'GC_content_all': 0.0, 'GC_content_non': 0.0,} 
-                 ###if the regex expression IS already in there, then:
-#                else:
-                      ##why is this here?
-                      #edited out 1040AM:
- #                     header = trunc_head.group(1)
-            ###otherwise it is a scaffold:
-            
             else:
                 header = 'scaffold'
                 continue 
        else:
             ### if the header is not scaffold and is already in the dictionary:
             if header != 'scaffold' and header in seq_dict:
-#                 print(f"This is your sequence that should be all CAPITALS: {line}")
-                 ##then calculate the seq length
                  seqlength = len(line)
-#                 print(f"This is your entire sequence length (ATCGN): {seqlength}")
                  seq_dict[header]['length_all'] += seqlength
              ##count only ATCG bases (no Ns) for length_non():
                  countbases = 0
